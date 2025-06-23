@@ -45,6 +45,7 @@ export const MatchResult: React.FC<Props> = ({ text, matches }) => {
 
   return (
     <View style={styles.container}>
+      {/* 👇 Esta parte es CLAVE: cada <Text> va en su propio View */}
       {result.map((el, index) => (
         <View key={index} style={styles.block}>
           {el}

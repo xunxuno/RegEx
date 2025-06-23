@@ -7,49 +7,40 @@ interface Props {
 }
 
 export const MatchResult: React.FC<Props> = ({ text, matches }) => {
-  if (!text) {
-    return <Text style={styles.normal}>Sin texto de prueba.</Text>;
-  }
+  if (!text) return null;
 
-  const result: React.ReactElement[] = [];
+  const result: React.ReactNode[] = [];
   let lastIndex = 0;
 
   matches.forEach(([start, end], index) => {
     if (start > lastIndex) {
-      const before = text.slice(lastIndex, start);
       result.push(
-        <Text key={`before-${index}`} style={styles.normal}>
-          {before}
-        </Text>
+        <View key={`before-${index}`} style={styles.textWrapper}>
+          <Text style={styles.normal}>{text.slice(lastIndex, start)}</Text>
+        </View>
       );
     }
 
-    const match = text.slice(start, end);
     result.push(
-      <Text key={`match-${index}`} style={styles.match}>
-        {match}
-      </Text>
+      <View key={`match-${index}`} style={styles.textWrapper}>
+        <Text style={styles.highlight}>{text.slice(start, end)}</Text>
+      </View>
     );
 
     lastIndex = end;
   });
 
   if (lastIndex < text.length) {
-    const after = text.slice(lastIndex);
     result.push(
-      <Text key="after" style={styles.normal}>
-        {after}
-      </Text>
+      <View key="after" style={styles.textWrapper}>
+        <Text style={styles.normal}>{text.slice(lastIndex)}</Text>
+      </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      {result.map((el, index) => (
-        <View key={index} style={styles.block}>
-          {el}
-        </View>
-      ))}
+      {result}
     </View>
   );
 };
@@ -59,8 +50,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
+    marginTop: 10,
   },
-  block: {
+  textWrapper: {
     flexDirection: 'row',
     flexShrink: 0,
   },
@@ -68,7 +60,7 @@ const styles = StyleSheet.create({
     color: '#000',
     fontSize: 16,
   },
-  match: {
+  highlight: {
     backgroundColor: 'yellow',
     color: '#000',
     fontWeight: 'bold',

@@ -1,11 +1,13 @@
 import React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 import { RegexTesterScreen } from './src/features/regexTester/presentation/screens/RegexTesterScreen';
 
-export default function App() {
+const App = () => {
   return (
-    <SafeAreaProvider>
+    <SafeAreaView>
       <RegexTesterScreen />
-    </SafeAreaProvider>
+    </SafeAreaView>
   );
-}
+};
+
+export default App;

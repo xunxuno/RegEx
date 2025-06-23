@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet } from 'react-native';
 
 interface Props {
   text: string;
@@ -7,27 +7,31 @@ interface Props {
 }
 
 export const MatchResult: React.FC<Props> = ({ text, matches }) => {
-  if (!text) {
-    return <Text style={styles.normal}>Sin texto de prueba.</Text>;
+  if (!text) return null;
+
+  if (!matches.length) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.normal}>{text}</Text>
+      </View>
+    );
   }
 
-  const result: React.ReactElement[] = [];
+  const result: React.ReactNode[] = [];
   let lastIndex = 0;
 
   matches.forEach(([start, end], index) => {
     if (start > lastIndex) {
-      const before = text.slice(lastIndex, start);
       result.push(
         <Text key={`before-${index}`} style={styles.normal}>
-          {before}
+          {text.slice(lastIndex, start)}
         </Text>
       );
     }
 
-    const match = text.slice(start, end);
     result.push(
       <Text key={`match-${index}`} style={styles.match}>
-        {match}
+        {text.slice(start, end)}
       </Text>
     );
 
@@ -35,43 +39,29 @@ export const MatchResult: React.FC<Props> = ({ text, matches }) => {
   });
 
   if (lastIndex < text.length) {
-    const after = text.slice(lastIndex);
     result.push(
       <Text key="after" style={styles.normal}>
-        {after}
+        {text.slice(lastIndex)}
       </Text>
     );
   }
 
-  return (
-    <View style={styles.container}>
-      {result.map((el, index) => (
-        <View key={index} style={styles.block}>
-          {el}
-        </View>
-      ))}
-    </View>
-  );
+  return <View style={styles.container}>{result}</View>; // No Text contenedor
 };
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 10,
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
   },
-  block: {
-    flexDirection: 'row',
-    flexShrink: 0,
-  },
   normal: {
     color: '#000',
-    fontSize: 16,
   },
   match: {
-    backgroundColor: 'yellow',
+    backgroundColor: '#ffdf80',
     color: '#000',
     fontWeight: 'bold',
-    fontSize: 16,
   },
 });

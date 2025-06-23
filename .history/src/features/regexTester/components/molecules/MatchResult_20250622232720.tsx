@@ -7,48 +7,39 @@ interface Props {
 }
 
 export const MatchResult: React.FC<Props> = ({ text, matches }) => {
-  if (!text) {
-    return <Text style={styles.normal}>Sin texto de prueba.</Text>;
-  }
+  if (!text) return null;
 
-  const result: React.ReactElement[] = [];
+  const result: React.ReactNode[] = [];
   let lastIndex = 0;
 
   matches.forEach(([start, end], index) => {
     if (start > lastIndex) {
-      const before = text.slice(lastIndex, start);
       result.push(
         <Text key={`before-${index}`} style={styles.normal}>
-          {before}
+          {text.slice(lastIndex, start)}
         </Text>
       );
     }
-
-    const match = text.slice(start, end);
     result.push(
-      <Text key={`match-${index}`} style={styles.match}>
-        {match}
+      <Text key={`match-${index}`} style={styles.highlight}>
+        {text.slice(start, end)}
       </Text>
     );
-
     lastIndex = end;
   });
 
   if (lastIndex < text.length) {
-    const after = text.slice(lastIndex);
     result.push(
       <Text key="after" style={styles.normal}>
-        {after}
+        {text.slice(lastIndex)}
       </Text>
     );
   }
 
   return (
     <View style={styles.container}>
-      {result.map((el, index) => (
-        <View key={index} style={styles.block}>
-          {el}
-        </View>
+      {result.map((textBlock, index) => (
+        <View key={index}>{textBlock}</View>
       ))}
     </View>
   );
@@ -58,20 +49,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    alignItems: 'flex-start',
-  },
-  block: {
-    flexDirection: 'row',
-    flexShrink: 0,
   },
   normal: {
     color: '#000',
-    fontSize: 16,
   },
-  match: {
+  highlight: {
     backgroundColor: 'yellow',
     color: '#000',
     fontWeight: 'bold',
-    fontSize: 16,
   },
 });

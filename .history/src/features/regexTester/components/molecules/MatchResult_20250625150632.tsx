@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 
 interface Props {
   text: string;
@@ -22,7 +22,7 @@ export const MatchResult: React.FC<Props> = ({ text, matches }) => {
     }
 
     result.push(
-      <Text key={`match-${index}`} style={styles.highlight}>
+      <Text key={`match-${index}`} style={styles.match}>
         {text.slice(start, end)}
       </Text>
     );
@@ -38,21 +38,36 @@ export const MatchResult: React.FC<Props> = ({ text, matches }) => {
     );
   }
 
-  return <Text style={styles.container}>{result}</Text>;
+  return (
+    <View style={styles.container}>
+      {result.map((el, idx) => (
+        <View key={idx} style={styles.block}>
+          {el}
+        </View>
+      ))}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexWrap: 'wrap',
     flexDirection: 'row',
-    fontSize: 16,
+    flexWrap: 'wrap',
+    alignItems: 'flex-start',
+  },
+  block: {
+    flexDirection: 'row',
   },
   normal: {
     color: '#000',
+    fontSize: 16,
   },
-  highlight: {
-    backgroundColor: '#ffeb3b',
+  match: {
+    backgroundColor: '#ffd700', // más intenso que "yellow"
     color: '#000',
     fontWeight: 'bold',
+    fontSize: 16,
+    paddingHorizontal: 2,
+    borderRadius: 2,
   },
 });

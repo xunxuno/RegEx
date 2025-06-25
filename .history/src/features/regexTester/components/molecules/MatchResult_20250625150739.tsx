@@ -38,6 +38,7 @@ export const MatchResult: React.FC<Props> = ({ text, matches }) => {
     );
   }
 
+  // 👇 Esta parte es crucial: un solo <Text> como contenedor de todos
   return <Text style={styles.container}>{result}</Text>;
 };
 
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   highlight: {
-    backgroundColor: '#ffeb3b',
+    backgroundColor: '#ffeb3b', // amarillo fuerte visible
     color: '#000',
     fontWeight: 'bold',
   },

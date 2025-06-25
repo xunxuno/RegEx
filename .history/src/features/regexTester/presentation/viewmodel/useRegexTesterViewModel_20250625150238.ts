@@ -12,7 +12,7 @@ export const useRegexTesterViewModel = () => {
     }
 
     try {
-      const expression = new RegExp(regex, 'gi');
+      const expression = new RegExp(regex, 'g');
       const result: number[][] = [];
       let match: RegExpExecArray | null;
 

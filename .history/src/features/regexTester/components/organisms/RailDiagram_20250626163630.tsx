@@ -18,8 +18,7 @@ interface AlternativeSeparator {
   type: 'AlternativeSeparator';
 }
 
-type DiagramElement = { alt: number; node: Node | AlternativeSeparator };
-
+type DiagramElement = { alt: number; node: Element | AlternativeSeparator };
 
 const translateNodeType = (type: string): string => {
   const translations: Record<string, string> = {
@@ -92,26 +91,6 @@ const RailNode: React.FC<RailNodeProps> = ({ label, value, x, y, type }) => {
   );
 };
 
-const isNode = (value: any): value is Node => {
-  return typeof value === 'object' && value !== null && 'type' in value;
-};
-
-const flattenNodes = (node: Node): Node[] => {
-  const result: Node[] = [node];
-
-  if ('expression' in node && isNode(node.expression)) {
-  result.push(...flattenNodes(node.expression));
-  }
-
-  if ('elements' in node && Array.isArray((node as any).elements)) {
-    for (const child of (node as any).elements) {
-      result.push(...flattenNodes(child));
-    }
-  }
-
-  return result;
-};
-
 export const RailDiagram: React.FC<Props> = ({ ast }) => {
   const [tooltip, setTooltip] = useState<{
     x: number;
@@ -126,9 +105,7 @@ export const RailDiagram: React.FC<Props> = ({ ast }) => {
   if ('alternatives' in ast) {
     ast.alternatives.forEach((alt, i) => {
       alt.elements.forEach((el) => {
-        flattenNodes(el).forEach((flatNode) => {
-          elements.push({ alt: i, node: flatNode });
-        });
+        elements.push({ alt: i, node: el });
       });
       if (i < ast.alternatives.length - 1) {
         elements.push({
@@ -217,7 +194,7 @@ export const RailDiagram: React.FC<Props> = ({ ast }) => {
         );
       })}
 
-      {/* Tooltip */}
+      {/* Tooltip (flotante) */}
       {tooltip && (
         <>
           <Rect

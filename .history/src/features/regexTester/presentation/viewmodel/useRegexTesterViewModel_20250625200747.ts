@@ -24,12 +24,10 @@ export const useRegexTesterViewModel = () => {
       }
 
       setMatches(result);
-      const astResult = parseRegexAst(regex, 'g');
-      setAst(astResult);
     } catch (err) {
       setMatches([]);
-      setAst(null);
     }
+    setAst(parseRegexAst(regex, 'g'));
   }, [regex, testText]);
 
   return {

@@ -6,25 +6,6 @@ interface Props {
   ast: Pattern | null;
 }
 
-const translateNodeType = (type: string): string => {
-  const translations: Record<string, string> = {
-    Pattern: 'Patrón',
-    Alternative: 'Alternativa',
-    CapturingGroup: 'Grupo de captura',
-    Group: 'Grupo',
-    Quantifier: 'Cuantificador',
-    CharacterClass: 'Clase de caracteres',
-    Character: 'Carácter',
-    CharacterSet: 'Conjunto de caracteres',
-    Assertion: 'Aserción',
-    Backreference: 'Retroreferencia',
-    Literal: 'Literal',
-    ExpressionCharacterClass: 'Clase de caracteres (Expresión)',
-  };
-
-  return translations[type] ?? type;
-};
-
 export const ASTViewer: React.FC<Props> = ({ ast }) => {
   if (!ast) {
     return <Text style={styles.info}>AST no disponible (regex inválida).</Text>;
@@ -32,26 +13,28 @@ export const ASTViewer: React.FC<Props> = ({ ast }) => {
 
   const renderNode = (node: Node, depth = 0): React.ReactNode => {
     const indent = '│  '.repeat(depth);
-    const label = `${indent}└─ ${translateNodeType(node.type)}`;
+    const label = `${indent}└─ ${node.type}`;
 
     const children: Node[] = [];
 
+    // 👇 Detectar alternativas del Pattern
     if ('alternatives' in node && Array.isArray(node.alternatives)) {
       for (const alt of node.alternatives as Alternative[]) {
         children.push(...alt.elements);
       }
     }
+    // 👇 Capturar hijos en nodos como CapturingGroup, Quantifier, etc.
     else if ('elements' in node && Array.isArray((node as any).elements)) {
       children.push(...(node as any).elements);
     }
-    else if (
-      'expression' in node &&
-      node.expression &&
-      typeof node.expression === 'object' &&
-      'type' in node.expression
-    ) {
-      children.push(node.expression as Node);
-    }
+      else if (
+    'expression' in node &&
+    node.expression &&
+    typeof node.expression === 'object' &&
+    'type' in node.expression
+  ) {
+    children.push(node.expression as Node);
+  }
 
     return (
       <View key={`${node.type}-${node.start}`} style={styles.node}>

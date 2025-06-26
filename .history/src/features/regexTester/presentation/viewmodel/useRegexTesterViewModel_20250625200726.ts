@@ -15,22 +15,24 @@ export const useRegexTesterViewModel = () => {
     }
 
     try {
-      const expression = new RegExp(regex, 'gi');
-      const result: number[][] = [];
-      let match: RegExpExecArray | null;
+    const expression = new RegExp(regex, 'g');
+    const result: number[][] = [];
+    let match: RegExpExecArray | null;
 
-      while ((match = expression.exec(testText)) !== null) {
-        result.push([match.index, match.index + match[0].length]);
-      }
-
-      setMatches(result);
-      const astResult = parseRegexAst(regex, 'g');
-      setAst(astResult);
-    } catch (err) {
-      setMatches([]);
-      setAst(null);
+    while ((match = expression.exec(testText)) !== null) {
+      result.push([match.index, match.index + match[0].length]);
     }
-  }, [regex, testText]);
+
+    setMatches(result);
+
+    // 👇 Agrega esto
+    const astResult = parseRegexAst(regex, 'g');
+    setAst(astResult);
+  } catch {
+    setMatches([]);
+    setAst(null);
+  }
+}, [regex, testText]);
 
   return {
     regex,

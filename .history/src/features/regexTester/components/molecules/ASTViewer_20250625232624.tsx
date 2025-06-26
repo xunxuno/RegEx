@@ -20,6 +20,7 @@ const translateNodeType = (type: string): string => {
     Backreference: 'Retroreferencia',
     Literal: 'Literal',
     ExpressionCharacterClass: 'Clase de caracteres (Expresión)',
+    // Agrega más si quieres cubrir más tipos
   };
 
   return translations[type] ?? type;
@@ -36,14 +37,17 @@ export const ASTViewer: React.FC<Props> = ({ ast }) => {
 
     const children: Node[] = [];
 
+    // Alternatives → elements
     if ('alternatives' in node && Array.isArray(node.alternatives)) {
       for (const alt of node.alternatives as Alternative[]) {
         children.push(...alt.elements);
       }
     }
+    // Elements directos
     else if ('elements' in node && Array.isArray((node as any).elements)) {
       children.push(...(node as any).elements);
     }
+    // Expression único
     else if (
       'expression' in node &&
       node.expression &&

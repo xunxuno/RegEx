@@ -14,11 +14,12 @@ interface RailNodeProps {
   type: string;
 }
 
-
+// Tipo personalizado para el separador de alternativas
 interface AlternativeSeparator {
   type: 'AlternativeSeparator';
 }
 
+// Tipo unión para los elementos del diagrama
 type DiagramElement = { alt: number; node: Element | AlternativeSeparator };
 
 const translateNodeType = (type: string): string => {
@@ -47,17 +48,17 @@ const getNodeColor = (type: string): string => {
   switch (type) {
     case 'CapturingGroup':
     case 'Group':
-      return '#d1c4e9';
+      return '#d1c4e9'; // morado
     case 'CharacterClass':
     case 'CharacterSet':
-      return '#b2dfdb';
+      return '#b2dfdb'; // verde agua
     case 'Quantifier':
-      return '#90caf9';
+      return '#90caf9'; // azul
     case 'Literal':
     case 'Character':
-      return '#ffe082';
+      return '#ffe082'; // amarillo
     default:
-      return '#eeeeee';
+      return '#eeeeee'; // gris claro
   }
 };
 
@@ -101,6 +102,7 @@ export const RailDiagram: React.FC<Props> = ({ ast }) => {
         elements.push({ alt: i, node: el });
       });
       if (i < ast.alternatives.length - 1) {
+        // Separador entre alternativas
         elements.push({
           alt: i,
           node: { type: 'AlternativeSeparator' } as AlternativeSeparator,
@@ -116,7 +118,7 @@ export const RailDiagram: React.FC<Props> = ({ ast }) => {
 
   return (
     <Svg width={totalWidth} height={80}>
-
+      {/* Línea inicial */}
       <Line x1={0} y1={40} x2={startX} y2={40} stroke="#333" strokeWidth={2} />
 
       {elements.map(({ alt, node }, i) => {
@@ -167,6 +169,7 @@ export const RailDiagram: React.FC<Props> = ({ ast }) => {
         );
       })}
 
+      {/* Línea final */}
       <Line
         x1={startX + elements.length * spacing - 20}
         y1={40}

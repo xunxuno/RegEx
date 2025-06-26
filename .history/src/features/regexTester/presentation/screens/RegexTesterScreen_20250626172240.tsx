@@ -41,9 +41,9 @@ export const RegexTesterScreen: React.FC = () => {
       const asset = await MediaLibrary.createAssetAsync(uri);
       await MediaLibrary.createAlbumAsync('Diagramas Regex', asset, false);
 
-      Alert.alert('Éxito', 'Diagrama guardado en la galería ');
+      Alert.alert('Éxito', '✅ Diagrama guardado en la galería 📁');
     } catch (error) {
-      console.error('Error al guardar imagen:', error);
+      console.error('❌ Error al guardar imagen:', error);
       Alert.alert('Error', 'Ocurrió un error al guardar la imagen.');
     }
   };

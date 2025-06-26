@@ -6,10 +6,9 @@ import { MatchResult } from '../../components/molecules/MatchResult';
 import { useRegexTesterViewModel } from '../viewmodel/useRegexTesterViewModel';
 import { ASTViewer } from '../../components/molecules/ASTViewer';
 import { RailDiagram } from '../../components/organisms/RailDiagram';
+import { captureRef } from 'react-native-view-shot';
 import { useRef } from 'react';
-
 import * as MediaLibrary from 'expo-media-library';
-import ViewShot from 'react-native-view-shot';
 
 export const RegexTesterScreen: React.FC = () => {
   const {
@@ -21,7 +20,7 @@ export const RegexTesterScreen: React.FC = () => {
     ast,
   } = useRegexTesterViewModel();
 
-  const diagramRef = useRef<ViewShot>(null);
+  const diagramRef = useRef<View>(null);
 
   const handleCapture = async () => {
     try {
@@ -34,9 +33,10 @@ export const RegexTesterScreen: React.FC = () => {
         return;
       }
 
-      const uri = await diagramRef.current?.capture?.();
-
-      if (!uri) throw new Error('No se pudo capturar la imagen.');
+      const uri = await captureRef(diagramRef, {
+        format: 'png',
+        quality: 1,
+      });
 
       const asset = await MediaLibrary.createAssetAsync(uri);
       await MediaLibrary.createAlbumAsync('Diagramas Regex', asset, false);
@@ -62,16 +62,11 @@ export const RegexTesterScreen: React.FC = () => {
       {ast && (
         <>
           <Text style={styles.diagramLabel}>Diagrama de Ferrocarril:</Text>
-          
-          <ViewShot
-            ref={diagramRef}
-            options={{ format: 'png', quality: 1 }}
-            style={styles.diagramWrapper}
-          >
-            <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+            <View ref={diagramRef}>
               <RailDiagram ast={ast} />
-            </ScrollView>
-          </ViewShot>
+            </View>
+          </ScrollView>
 
           <View style={styles.buttonContainer}>
             <Button title="Guardar diagrama como imagen" onPress={handleCapture} />
@@ -102,10 +97,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
     fontSize: 16,
-  },
-  diagramWrapper: {
-    backgroundColor: '#fff',
-    paddingVertical: 10,
   },
   buttonContainer: {
     marginTop: 15,

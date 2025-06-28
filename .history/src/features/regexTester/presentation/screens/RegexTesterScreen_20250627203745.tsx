@@ -13,12 +13,6 @@ import ViewShot from 'react-native-view-shot';
 
 import { useRegexStore } from '../../store/useRegexStore';
 
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../app/AppNavigator';
-import { useRoute } from '@react-navigation/native';
-import { RouteProp } from '@react-navigation/native';
-
 export const RegexTesterScreen: React.FC = () => {
   const {
     regex,
@@ -31,20 +25,6 @@ export const RegexTesterScreen: React.FC = () => {
 
 
 const { loadEntries, addEntry, entries } = useRegexStore();
-const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-const route = useRoute<RouteProp<RootStackParamList, 'RegexTester'>>();
-
-useEffect(() => {
-  if (route.params?.pattern) {
-    setRegex(route.params.pattern);
-    navigation.setParams({ pattern: undefined });
-  }
-}, [route.params]);
-
-const handleGoToHistory = () => {
-  navigation.navigate('RegexHistory');
-};
-
 
 
   useEffect(() => {
@@ -108,9 +88,7 @@ const handleGoToHistory = () => {
               <RailDiagram ast={ast} />
             </ScrollView>
           </ViewShot>
-          <View style={styles.buttonContainer}>
-            <Button title="Ver historial" onPress={handleGoToHistory} />
-          </View>
+
           <View style={styles.buttonContainer}>
             <Button title="Guardar diagrama como imagen" onPress={handleCapture} />
           </View>

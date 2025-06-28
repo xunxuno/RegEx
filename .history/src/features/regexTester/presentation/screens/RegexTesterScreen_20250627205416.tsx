@@ -37,7 +37,6 @@ const route = useRoute<RouteProp<RootStackParamList, 'RegexTester'>>();
 useEffect(() => {
   if (route.params?.pattern) {
     setRegex(route.params.pattern);
-    navigation.setParams({ pattern: undefined });
   }
 }, [route.params]);
 

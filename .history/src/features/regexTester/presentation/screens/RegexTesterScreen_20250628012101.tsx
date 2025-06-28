@@ -41,11 +41,8 @@ useEffect(() => {
 
   if (pattern) setRegex(pattern);
   if (testText) setTestText(testText);
-  if (pattern || testText) {
-    navigation.setParams({ pattern: undefined, testText: undefined });
-  }
-}, [route.params?.pattern, route.params?.testText]);
-
+  navigation.setParams({ pattern: undefined, testText: undefined });
+}, [route.params]);
 
 const handleGoToHistory = () => {
   navigation.navigate('RegexHistory');

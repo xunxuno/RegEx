@@ -4,6 +4,7 @@ import { RegexEntry } from '../domain/entities/RegexEntry';
 const db = openDatabaseSync('regex.db');
 
 export const initRegexDB = () => {
+  db.execAsync(`DROP TABLE IF EXISTS regex_entries;`);
   db.execAsync(
     `CREATE TABLE IF NOT EXISTS regex_entries (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -13,7 +14,6 @@ export const initRegexDB = () => {
     );`
   );
 };
-
 export const insertRegexEntry = async (entry: RegexEntry): Promise<void> => {
   await db.runAsync(
     'INSERT INTO regex_entries (pattern, testText, createdAt) VALUES (?, ?, ?)',

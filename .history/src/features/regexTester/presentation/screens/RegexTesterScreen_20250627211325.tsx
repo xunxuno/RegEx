@@ -33,19 +33,13 @@ export const RegexTesterScreen: React.FC = () => {
 const { loadEntries, addEntry, entries } = useRegexStore();
 const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 const route = useRoute<RouteProp<RootStackParamList, 'RegexTester'>>();
-const lastSavedRef = useRef<{ pattern: string; testText: string } | null>(null);
-
 
 useEffect(() => {
-  const { pattern, testText } = route.params || {};
-
-  if (pattern) setRegex(pattern);
-  if (testText) setTestText(testText);
-  if (pattern || testText) {
-    navigation.setParams({ pattern: undefined, testText: undefined });
+  if (route.params?.pattern) {
+    setRegex(route.params.pattern);
+    navigation.setParams({ pattern: undefined });
   }
-}, [route.params?.pattern, route.params?.testText]);
-
+}, [route.params]);
 
 const handleGoToHistory = () => {
   navigation.navigate('RegexHistory');
@@ -84,29 +78,11 @@ const handleGoToHistory = () => {
   };
 
 
-  useEffect(() => {
-    if (regex.trim().length === 0 || testText.trim().length === 0) return;
-
-    const delay = setTimeout(() => {
-      const last = lastSavedRef.current;
-
-      const isDuplicate =
-        last &&
-        last.pattern === regex.trim() &&
-        last.testText === testText.trim();
-
-      if (!isDuplicate) {
-        addEntry(regex.trim(), testText.trim());
-        lastSavedRef.current = {
-          pattern: regex.trim(),
-          testText: testText.trim(),
-        };
-      }
-    }, 2000);
-
-    return () => clearTimeout(delay);
-  }, [regex, testText]);
-
+    useEffect(() => {
+    if (regex.trim().length > 0 && testText.trim().length > 0) {
+      addEntry(regex, testText);
+    }
+  }, [regex]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

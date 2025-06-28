@@ -12,7 +12,7 @@ import { RootStackParamList } from '../../../regexTester/app/AppNavigator';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 interface Props {
-  onSelect?: (pattern: string, testText: string) => void;
+  onSelect?: (pattern: string) => void;
 }
 
 export const RegexHistoryScreen: React.FC<Props> = ({ onSelect }) => {
@@ -23,23 +23,18 @@ export const RegexHistoryScreen: React.FC<Props> = ({ onSelect }) => {
     loadEntries();
   }, []);
 
-  const handleSelect = (pattern: string, testText: string) => {
+  const handleSelect = (pattern: string) => {
     if (onSelect) {
-      onSelect(pattern, testText);
+      onSelect(pattern);
     } else {
-      navigation.navigate('RegexTester', { pattern, testText });
+      navigation.navigate('RegexTester', { pattern });
     }
   };
 
   const renderItem = ({ item }: any) => (
     <TouchableOpacity
       style={styles.item}
-      onPress={() => 
-              navigation.navigate('RegexTester', {
-        pattern: item.pattern,
-        testText: item.testText,
-      })
-    }
+      onPress={() => handleSelect(item.pattern)}
     >
       <Text style={styles.pattern}>{item.pattern}</Text>
       <Text style={styles.testText}>Texto: {item.testText}</Text>

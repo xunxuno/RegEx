@@ -37,15 +37,11 @@ const lastSavedRef = useRef<{ pattern: string; testText: string } | null>(null);
 
 
 useEffect(() => {
-  const { pattern, testText } = route.params || {};
-
-  if (pattern) setRegex(pattern);
-  if (testText) setTestText(testText);
-  if (pattern || testText) {
-    navigation.setParams({ pattern: undefined, testText: undefined });
+  if (route.params?.pattern) {
+    setRegex(route.params.pattern);
+    navigation.setParams({ pattern: undefined });
   }
-}, [route.params?.pattern, route.params?.testText]);
-
+}, [route.params]);
 
 const handleGoToHistory = () => {
   navigation.navigate('RegexHistory');

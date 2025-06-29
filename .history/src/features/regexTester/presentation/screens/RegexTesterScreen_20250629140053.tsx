@@ -18,7 +18,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../app/AppNavigator';
 import { useRoute } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
-import { MatchedRailDiagram  } from '../../components/organisms/MatchedRailDiagram';
 
 export const RegexTesterScreen: React.FC = () => {
   const {
@@ -77,7 +76,8 @@ const handleGoToHistory = () => {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
-          'Permiso requerido'
+          'Permiso requerido',
+          'Necesitamos acceso a la galería para guardar la imagen.'
         );
         return;
       }
@@ -114,7 +114,7 @@ const handleGoToHistory = () => {
           testText: testText.trim(),
         };
       }
-    }, 6000);
+    }, 2000);
 
     return () => clearTimeout(delay);
   }, [regex, testText]);
@@ -130,14 +130,6 @@ const handleGoToHistory = () => {
       </View>
 
       {ast && <ASTViewer ast={ast} />}
-
-      {regex && testText && (
-        <>
-          <Text style={styles.diagramLabel}>Coincidencias en texto:</Text>
-          <MatchedRailDiagram regex={regex} testText={testText} />
-        </>
-      )}
-
 
       {ast && (
         <>

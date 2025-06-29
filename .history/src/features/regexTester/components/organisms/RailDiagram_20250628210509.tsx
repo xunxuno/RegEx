@@ -4,7 +4,7 @@ import { Pattern, Node } from 'regexpp/ast';
 
 interface Props {
   ast: Pattern;
-  matchIndices: number[][] | null;
+  matchIndices: number[][] | null; // ✅ Usamos esto para resaltar nodos
 }
 
 interface RailNodeProps {
@@ -45,7 +45,7 @@ const getNodeValue = (node: Node): string => {
 };
 
 const getNodeColor = (type: string, isMatched?: boolean): string => {
-  if (isMatched) return '#81c784';
+  if (isMatched) return '#81c784'; // ✅ Verde si coincide con un índice
   switch (type) {
     case 'CapturingGroup':
     case 'Group':
@@ -114,6 +114,7 @@ const flattenNodes = (node: Node): Node[] => {
   return result;
 };
 
+// ✅ Verifica si un nodo coincide con algún rango en matchIndices
 const nodeIsMatched = (node: Node, matchIndices: number[][] | null): boolean => {
   if (!matchIndices || typeof node.start !== 'number' || typeof node.end !== 'number') {
     return false;

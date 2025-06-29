@@ -18,7 +18,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../app/AppNavigator';
 import { useRoute } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
-import { MatchedRailDiagram  } from '../../components/organisms/MatchedRailDiagram';
 
 export const RegexTesterScreen: React.FC = () => {
   const {
@@ -36,18 +35,6 @@ const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(
 const route = useRoute<RouteProp<RootStackParamList, 'RegexTester'>>();
 const lastSavedRef = useRef<{ pattern: string; testText: string } | null>(null);
 
-let regexObj: RegExp | null = null;
-let result: RegExpExecArray | null = null;
-let matchIndices: number[][] | null = null;
-
-try {
-  regexObj = new RegExp(regex, 'gd');
-  result = regexObj.exec(testText);
-  matchIndices = result?.indices ?? null;
-} catch (err) {
-  console.warn('Expresión regular inválida:', err);
-  matchIndices = null;
-}
 
 useEffect(() => {
   const { pattern, testText } = route.params || {};
@@ -77,7 +64,8 @@ const handleGoToHistory = () => {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
         Alert.alert(
-          'Permiso requerido'
+          'Permiso requerido',
+          'Necesitamos acceso a la galería para guardar la imagen.'
         );
         return;
       }
@@ -114,7 +102,7 @@ const handleGoToHistory = () => {
           testText: testText.trim(),
         };
       }
-    }, 6000);
+    }, 2000);
 
     return () => clearTimeout(delay);
   }, [regex, testText]);
@@ -131,14 +119,6 @@ const handleGoToHistory = () => {
 
       {ast && <ASTViewer ast={ast} />}
 
-      {regex && testText && (
-        <>
-          <Text style={styles.diagramLabel}>Coincidencias en texto:</Text>
-          <MatchedRailDiagram regex={regex} testText={testText} />
-        </>
-      )}
-
-
       {ast && (
         <>
           <Text style={styles.diagramLabel}>Diagrama de Ferrocarril:</Text>
@@ -149,7 +129,7 @@ const handleGoToHistory = () => {
             style={styles.diagramWrapper}
           >
             <ScrollView horizontal showsHorizontalScrollIndicator={true}>
-              <RailDiagram ast={ast} matchIndices={matchIndices} />
+              <RailDiagram ast={ast} />
             </ScrollView>
           </ViewShot>
           <View style={styles.buttonContainer}>

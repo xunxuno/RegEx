@@ -131,13 +131,12 @@ const handleGoToHistory = () => {
 
       {ast && <ASTViewer ast={ast} />}
 
-      {regex && testText && (
+            {regex && testText && (
         <>
           <Text style={styles.diagramLabel}>Coincidencias en texto:</Text>
           <MatchedRailDiagram regex={regex} testText={testText} />
         </>
       )}
-
 
       {ast && (
         <>

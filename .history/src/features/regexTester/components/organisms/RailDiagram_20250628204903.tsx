@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Svg, Rect, Line, Text as SvgText } from 'react-native-svg';
-import { Pattern, Node } from 'regexpp/ast';
+import { Pattern, Node, Element } from 'regexpp/ast';
 
 interface Props {
   ast: Pattern;
-  matchIndices: number[][] | null;
+  matches: RegExpExecArray | null; // 🔥 NUEVO
 }
 
 interface RailNodeProps {
@@ -13,7 +13,7 @@ interface RailNodeProps {
   x: number;
   y: number;
   type: string;
-  isMatched?: boolean;
+  isMatched?: boolean; // 🔥 NUEVO
 }
 
 interface AlternativeSeparator {
@@ -45,7 +45,7 @@ const getNodeValue = (node: Node): string => {
 };
 
 const getNodeColor = (type: string, isMatched?: boolean): string => {
-  if (isMatched) return '#81c784';
+  if (isMatched) return '#81c784'; // 🔥 VERDE SI HIZO MATCH
   switch (type) {
     case 'CapturingGroup':
     case 'Group':
@@ -65,6 +65,7 @@ const getNodeColor = (type: string, isMatched?: boolean): string => {
 
 const RailNode: React.FC<RailNodeProps> = ({ label, value, x, y, type, isMatched }) => {
   const color = getNodeColor(type, isMatched);
+  
 
   return (
     <>
@@ -94,16 +95,17 @@ const RailNode: React.FC<RailNodeProps> = ({ label, value, x, y, type, isMatched
   );
 };
 
-const isNode = (value: any): value is Node => {
+const flattenNodes = (node: Node): Node[] => {
+  const result: Node[] = [node];
+  const isNode = (value: any): value is Node => {
   return typeof value === 'object' && value !== null && 'type' in value;
 };
 
-const flattenNodes = (node: Node): Node[] => {
-  const result: Node[] = [node];
 
-  if ('expression' in node && isNode(node.expression)) {
-    result.push(...flattenNodes(node.expression));
-  }
+if ('expression' in node && isNode(node.expression)) {
+  result.push(...flattenNodes(node.expression));
+}
+
 
   if ('elements' in node && Array.isArray((node as any).elements)) {
     for (const child of (node as any).elements) {
@@ -114,17 +116,7 @@ const flattenNodes = (node: Node): Node[] => {
   return result;
 };
 
-const nodeIsMatched = (node: Node, matchIndices: number[][] | null): boolean => {
-  if (!matchIndices || typeof node.start !== 'number' || typeof node.end !== 'number') {
-    return false;
-  }
-
-  return matchIndices.some(([start, end]) => {
-    return start >= 0 && end >= 0 && start >= node.start && end <= node.end;
-  });
-};
-
-export const RailDiagram: React.FC<Props> = ({ ast, matchIndices }) => {
+export const RailDiagram: React.FC<Props> = ({ ast, matches }) => {
   const [tooltip, setTooltip] = useState<{
     x: number;
     y: number;
@@ -185,7 +177,9 @@ export const RailDiagram: React.FC<Props> = ({ ast, matchIndices }) => {
           i < elements.length - 1 &&
           elements[i + 1].node.type !== 'AlternativeSeparator';
 
-        const isMatched = nodeIsMatched(node, matchIndices);
+        const isMatched =
+          node.type === 'CapturingGroup' &&
+          !!matches?.[parseInt((node as any).name || i + 1)];
 
         return (
           <React.Fragment key={`${node.type}-${i}-${alt}`}>
@@ -195,7 +189,7 @@ export const RailDiagram: React.FC<Props> = ({ ast, matchIndices }) => {
               x={x}
               y={startY}
               type={node.type}
-              isMatched={isMatched}
+              isMatched={isMatched} // 🔥 PASAMOS ESTA PROP
             />
             <Rect
               x={x}

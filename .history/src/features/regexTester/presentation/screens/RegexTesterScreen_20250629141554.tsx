@@ -18,7 +18,6 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../app/AppNavigator';
 import { useRoute } from '@react-navigation/native';
 import { RouteProp } from '@react-navigation/native';
-import { MatchedRailDiagram  } from '../../components/organisms/MatchedRailDiagram';
 
 export const RegexTesterScreen: React.FC = () => {
   const {
@@ -130,14 +129,6 @@ const handleGoToHistory = () => {
       </View>
 
       {ast && <ASTViewer ast={ast} />}
-
-      {regex && testText && (
-        <>
-          <Text style={styles.diagramLabel}>Coincidencias en texto:</Text>
-          <MatchedRailDiagram regex={regex} testText={testText} />
-        </>
-      )}
-
 
       {ast && (
         <>

@@ -10,7 +10,6 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 export type RootStackParamList = {
   RegexTester: { pattern?: string; testText?: string };
   RegexHistory: undefined;
-  Info: undefined;
 };
 
 const Drawer = createDrawerNavigator();

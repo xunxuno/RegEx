@@ -11,6 +11,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-navigation/drawer": "^7.5.2",
     "@react-navigation/native": "^7.1.14",
     "@react-navigation/native-stack": "^7.3.21",
     "expo": "~53.0.12",
@@ -20,12 +21,15 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.4",
+    "react-native-gesture-handler": "^2.26.0",
     "react-native-safe-area-context": "5.4.0",
     "react-native-svg": "15.11.2",
     "react-native-view-shot": "4.0.3",
     "react-native-web": "^0.20.0",
     "regexpp": "^3.2.0",
-    "zustand": "^5.0.6"
+    "zustand": "^5.0.6",
+    "react-native-reanimated": "~3.17.4",
+    "react-native-screens": "~4.11.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

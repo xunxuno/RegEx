@@ -1,6 +1,7 @@
 import React from 'react';
 import { Svg, Rect, Text as SvgText, Line } from 'react-native-svg';
 import { Pattern, Node } from 'regexpp/ast';
+import { VerticalRail, VerticalRailNode } from './VerticalRail';
 
 interface Props {
   ast: Pattern;
@@ -36,7 +37,7 @@ const getNodeValue = (node: Node): string => {
   return '';
 };
 
-const getNodeColor = (type: string, isMatched: boolean): string => {
+/*const getNodeColor = (type: string, isMatched: boolean): string => {
   if (isMatched) return '#81c784';
   switch (type) {
     case 'CapturingGroup':
@@ -53,7 +54,7 @@ const getNodeColor = (type: string, isMatched: boolean): string => {
     default:
       return '#eeeeee';
   }
-};
+};*/
 
 const isNode = (value: any): value is Node => {
   return typeof value === 'object' && value !== null && 'type' in value;
@@ -83,80 +84,26 @@ const nodeIsMatched = (node: Node, matchIndices: number[][] | null): boolean => 
 };
 
 export const RailDiagram: React.FC<Props> = ({ ast, matchIndices }) => {
-  const nodes: DiagramNode[] = [];
+  const nodes: VerticalRailNode [] = [];
 
   if ('alternatives' in ast) {
     ast.alternatives.forEach((alt) => {
       alt.elements.forEach((el) => {
-        flattenNodes(el).forEach((flat) => {
-          const label = translateNodeType(flat.type);
-          const value = getNodeValue(flat);
-          const matched = nodeIsMatched(flat, matchIndices);
-          nodes.push({ node: flat, label, value, isMatched: matched });
+        flattenNodes(el).forEach((n, i) => {
+          const label = translateNodeType(n.type);
+          const value = getNodeValue(n);
+          const matched = nodeIsMatched(n, matchIndices);
+
+          nodes.push({
+            id: `${n.type}-${i}`,
+            label,
+            value,
+            color: matched ? '#81c784' : undefined,
+          });
         });
       });
     });
   }
 
-  const boxWidth = 200;
-  const boxHeight = 40;
-  const spacing = 60;
-  const startX = 20;
-  const startY = 20;
-  const totalHeight = nodes.length * spacing + startY * 2;
-
-  return (
-    <Svg width={boxWidth + 40} height={totalHeight}>
-      {nodes.map((n, i) => {
-        const y = startY + i * spacing;
-        const isLast = i === nodes.length - 1;
-
-        return (
-          <React.Fragment key={`${n.node.type}-${i}`}>
-            <Rect
-              x={startX}
-              y={y}
-              width={boxWidth}
-              height={boxHeight}
-              rx={6}
-              fill={getNodeColor(n.node.type, n.isMatched)}
-              stroke="#333"
-              strokeWidth={1}
-            />
-            <SvgText
-              x={startX + boxWidth / 2}
-              y={y + 18}
-              fontSize="13"
-              textAnchor="middle"
-              fill="#000"
-              fontWeight="bold"
-            >
-              {n.label}
-            </SvgText>
-            {n.value && (
-              <SvgText
-                x={startX + boxWidth / 2}
-                y={y + 34}
-                fontSize="11"
-                textAnchor="middle"
-                fill="#333"
-              >
-                {n.value}
-              </SvgText>
-            )}
-            {!isLast && (
-              <Line
-                x1={startX + boxWidth / 2}
-                y1={y + boxHeight}
-                x2={startX + boxWidth / 2}
-                y2={y + spacing}
-                stroke="#333"
-                strokeWidth={2}
-              />
-            )}
-          </React.Fragment>
-        );
-      })}
-    </Svg>
-  );
+  return <VerticalRail nodes={nodes} />;
 };

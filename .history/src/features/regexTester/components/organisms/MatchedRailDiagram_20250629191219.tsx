@@ -104,25 +104,13 @@ export const MatchedRailDiagram: React.FC<Props> = ({ regex, testText }) => {
               />
               <SvgText
                 x={startX + boxWidth / 2}
-                y={y + 18}
+                y={y + 25}
                 fontSize="13"
                 textAnchor="middle"
                 fill="#000"
-                fontWeight="bold"
               >
-                Grupo {group.groupIndex}
+                Grupo {group.groupIndex}: {group.value}
               </SvgText>
-
-              <SvgText
-                x={startX + boxWidth / 2}
-                y={y + 35}
-                fontSize="12"
-                textAnchor="middle"
-                fill="#333"
-              >
-                {group.value}
-              </SvgText>
-
             </React.Fragment>
           );
         });

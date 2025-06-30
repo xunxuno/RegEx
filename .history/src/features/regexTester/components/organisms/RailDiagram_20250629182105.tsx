@@ -15,7 +15,7 @@ interface DiagramNode {
 }
 
 const translateNodeType = (type: string): string => {
-  const map: Record<string, string> = {
+  const translations: Record<string, string> = {
     Pattern: 'Patrón',
     CapturingGroup: 'Grupo',
     Group: 'Grupo',
@@ -26,7 +26,7 @@ const translateNodeType = (type: string): string => {
     Quantifier: 'Cuantificador',
     Alternative: 'Alternativa',
   };
-  return map[type] || type;
+  return translations[type] || type;
 };
 
 const getNodeValue = (node: Node): string => {
@@ -82,7 +82,7 @@ const nodeIsMatched = (node: Node, matchIndices: number[][] | null): boolean => 
   });
 };
 
-export const RailDiagram: React.FC<Props> = ({ ast, matchIndices }) => {
+export const VerticalRailDiagram: React.FC<Props> = ({ ast, matchIndices }) => {
   const nodes: DiagramNode[] = [];
 
   if ('alternatives' in ast) {

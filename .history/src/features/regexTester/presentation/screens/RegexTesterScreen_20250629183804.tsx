@@ -135,7 +135,9 @@ const handleGoToHistory = () => {
         <>
           <Text style={styles.diagramLabel}>Coincidencias en texto:</Text>
           <View style={{ alignItems: 'center', marginBottom: 20 }}>
-            <MatchedRailDiagram regex={regex} testText={testText} />
+            <ScrollView horizontal={false}>
+              <MatchedRailDiagram regex={regex} testText={testText} />
+            </ScrollView>
           </View>
         </>
       )}
@@ -148,9 +150,11 @@ const handleGoToHistory = () => {
           <ViewShot
             ref={diagramRef}
             options={{ format: 'png', quality: 1 }}
-            style={{ ...styles.diagramWrapper, alignSelf: 'center' }}
+            style={styles.diagramWrapper}
           >
+            <ScrollView horizontal showsHorizontalScrollIndicator={true}>
               <RailDiagram ast={ast} matchIndices={matchIndices} />
+            </ScrollView>
           </ViewShot>
           <View style={styles.buttonContainer}>
             <Button title="Ver historial" onPress={handleGoToHistory} />

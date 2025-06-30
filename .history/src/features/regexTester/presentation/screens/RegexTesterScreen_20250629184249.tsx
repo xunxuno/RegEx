@@ -150,7 +150,9 @@ const handleGoToHistory = () => {
             options={{ format: 'png', quality: 1 }}
             style={{ ...styles.diagramWrapper, alignSelf: 'center' }}
           >
+            <ScrollView horizontal showsHorizontalScrollIndicator={true}>
               <RailDiagram ast={ast} matchIndices={matchIndices} />
+            </ScrollView>
           </ViewShot>
           <View style={styles.buttonContainer}>
             <Button title="Ver historial" onPress={handleGoToHistory} />
@@ -167,6 +169,7 @@ const handleGoToHistory = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
+    paddingBottom: 100,
     flexGrow: 1,
     justifyContent: 'flex-start',
   },

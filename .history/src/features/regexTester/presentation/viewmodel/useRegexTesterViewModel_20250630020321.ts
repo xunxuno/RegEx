@@ -11,7 +11,6 @@ export const useRegexTesterViewModel = () => {
   useEffect(() => {
     if (!regex || !testText) {
       setMatches([]);
-      setAst(null)
       return;
     }
 
@@ -32,6 +31,14 @@ export const useRegexTesterViewModel = () => {
       setAst(null);
     }
   }, [regex, testText]);
+  
+  const reset = () => {
+  setRegex('');
+  setTestText('');
+  setAst(null);
+  setMatches([]);
+  };
+
 
   return {
     regex,
@@ -40,5 +47,6 @@ export const useRegexTesterViewModel = () => {
     setTestText,
     matches,
     ast,
+    reset,
   };
 };

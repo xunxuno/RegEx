@@ -128,13 +128,6 @@ const handleGoToHistory = () => {
       <View style={styles.result}>
         <MatchResult text={testText} matches={matches} />
       </View>
-      <View style={styles.buttonRow}>
-            <Button title="Ver historial" onPress={handleGoToHistory} />
-            <Button title="Limpiar" color="#f44336" onPress={() => {
-              setRegex('');
-              setTestText('');
-            }} />
-          </View>
 
       {ast && <ASTViewer ast={ast} />}
 
@@ -164,7 +157,13 @@ const handleGoToHistory = () => {
           </View>
         </>
       )}
-          
+          <View style={styles.buttonRow}>
+            <Button title="Ver historial" onPress={handleGoToHistory} />
+            <Button title="Limpiar" color="#f44336" onPress={() => {
+              setRegex('');
+              setTestText('');
+            }} />
+          </View>
 
     </ScrollView>
     

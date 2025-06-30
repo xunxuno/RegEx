@@ -124,17 +124,10 @@ const handleGoToHistory = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <RegexInput value={regex} onChange={setRegex} />
       <TestTextInput value={testText} onChange={setTestText} />
-      <Text style={styles.diagramLabel}>Coincidencias:</Text>
+
       <View style={styles.result}>
         <MatchResult text={testText} matches={matches} />
       </View>
-      <View style={styles.buttonRow}>
-            <Button title="Ver historial" onPress={handleGoToHistory} />
-            <Button title="Limpiar" color="#f44336" onPress={() => {
-              setRegex('');
-              setTestText('');
-            }} />
-          </View>
 
       {ast && <ASTViewer ast={ast} />}
 
@@ -150,7 +143,7 @@ const handleGoToHistory = () => {
 
       {ast && (
         <>
-          <Text style={styles.diagramLabel}>Diagrama de Ferrocarril de la Expresion Regular:</Text>
+          <Text style={styles.diagramLabel}>Diagrama de Ferrocarril:</Text>
 
           <ViewShot
             ref={diagramRef}
@@ -164,7 +157,13 @@ const handleGoToHistory = () => {
           </View>
         </>
       )}
-          
+          <View style={styles.buttonRow}>
+            <Button title="Ver historial" onPress={handleGoToHistory} />
+            <Button title="Limpiar" color="#f44336" onPress={() => {
+              setRegex('');
+              setTestText('');
+            }} />
+          </View>
 
     </ScrollView>
     

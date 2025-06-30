@@ -11,7 +11,6 @@ export const useRegexTesterViewModel = () => {
   useEffect(() => {
     if (!regex || !testText) {
       setMatches([]);
-      setAst(null)
       return;
     }
 

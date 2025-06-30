@@ -1,36 +1,79 @@
 import React, { useRef, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert, Text, Button } from 'react-native';
-
-// Atoms
 import { RegexInput } from '../../components/atoms/RegexInput';
 import { TestTextInput } from '../../components/atoms/TestTextInput';
-
-// Molecules
 import { MatchResult } from '../../components/molecules/MatchResult';
+import { useRegexTesterViewModel } from '../viewmodel/useRegexTesterViewModel';
 import { ASTViewer } from '../../components/molecules/ASTViewer';
-
-// Organisms
 import { RailDiagram } from '../../components/organisms/RailDiagram';
 import { MatchedRailDiagram } from '../../components/organisms/MatchedRailDiagram';
 
-// Hooks y almacenamiento
-import { useRegexTesterViewModel } from '../viewmodel/useRegexTesterViewModel';
+import * as MediaLibrary from 'expo-media-library';
+import ViewShot from 'react-native-view-shot';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
+
 import { useRegexStore } from '../../store/useRegexStore';
 
-// Navegación
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../app/AppNavigator';
 import { useRoute, RouteProp } from '@react-navigation/native';
+import { Node } from 'regexpp/ast';
 
-// Herramientas del sistema
-import * as MediaLibrary from 'expo-media-library';
-import ViewShot from 'react-native-view-shot';
+const renderAstToText = (node: Node, indent = 0): string => {
+  const padding = '│  '.repeat(indent);
+  let result = `${padding}└─ ${node.type}\n`;
 
+  if ('elements' in node && Array.isArray((node as any).elements)) {
+    for (const child of (node as any).elements) {
+      result += renderAstToText(child, indent + 1);
+    }
+  }
 
-// Componente principal
+  if ('expression' in node && typeof (node as any).expression === 'object') {
+    result += renderAstToText((node as any).expression, indent + 1);
+  }
+
+  return result;
+};
+
+const generatePdfContent = (
+  regex: string,
+  testText: string,
+  matches: string[],
+  ast: Node | null,
+  matchDiagramUri: string,
+  patternDiagramUri: string
+) => {
+  const astText = ast ? renderAstToText(ast) : 'No disponible';
+
+  return `
+    <html>
+      <body style="font-family: sans-serif; padding: 20px;">
+        <h1>Reporte de Expresión Regular</h1>
+        <p><strong>Expresión:</strong> ${regex}</p>
+        <p><strong>Texto de prueba:</strong> ${testText}</p>
+
+        <h2>Resultados:</h2>
+        <ul>
+          ${matches.map((m, i) => `<li>Match ${i + 1}: ${m}</li>`).join('')}
+        </ul>
+
+        <h2>AST Pattern:</h2>
+        <pre style="font-size: 13px; background: #eee; padding: 10px;">${astText}</pre>
+
+        <h2>Diagrama de coincidencias:</h2>
+        <img src="${matchDiagramUri}" style="width: 100%; max-width: 600px; max-height: 800px; object-fit: contain;" />
+
+        <h2>Diagrama de la expresión:</h2>
+        <img src="${patternDiagramUri}" style="width: 100%; max-width: 600px; max-height: 800px; object-fit: contain;" />
+      </body>
+    </html>
+  `;
+};
+
 export const RegexTesterScreen: React.FC = () => {
-  // ViewModel que maneja el estado de la vista (MVVM)
   const {
     regex,
     testText,
@@ -40,24 +83,17 @@ export const RegexTesterScreen: React.FC = () => {
     ast,
   } = useRegexTesterViewModel();
 
-  // Store global con persistencia
-  const { loadEntries, addEntry, entries } = useRegexStore();
-
-  // Navegación y parámetros recibidos
+  const { loadEntries, addEntry } = useRegexStore();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'RegexTester'>>();
-
-  // Refs
   const lastSavedRef = useRef<{ pattern: string; testText: string } | null>(null);
-  const diagramRef = useRef<ViewShot>(null);
 
-  // Cálculo de coincidencias para el diagrama
   let regexObj: RegExp | null = null;
   let result: RegExpExecArray | null = null;
   let matchIndices: number[][] | null = null;
 
   try {
-    regexObj = new RegExp(regex, 'gd'); // 'd' activa match.indices
+    regexObj = new RegExp(regex, 'gd');
     result = regexObj.exec(testText);
     matchIndices = result?.indices ?? null;
   } catch (err) {
@@ -65,13 +101,11 @@ export const RegexTesterScreen: React.FC = () => {
     matchIndices = null;
   }
 
-  // Si viene una expresión desde el historial, la establece
   useEffect(() => {
     const { pattern, testText } = route.params || {};
+
     if (pattern) setRegex(pattern);
     if (testText) setTestText(testText);
-
-    // Limpieza de parámetros
     if (pattern || testText) {
       navigation.setParams({ pattern: undefined, testText: undefined });
     }
@@ -82,17 +116,17 @@ export const RegexTesterScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    loadEntries(); // Carga desde SQLite al iniciar
+    loadEntries();
   }, []);
 
-  /**
-   * Captura el diagrama como imagen y lo guarda en la galería
-   */
+  const diagramRef = useRef<ViewShot>(null);
+  const matchDiagramRef = useRef<ViewShot>(null);
+
   const handleCapture = async () => {
     try {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('Permiso requerido');
+        Alert.alert('Permiso requerido', 'Otorga permisos para guardar la imagen.');
         return;
       }
 
@@ -109,9 +143,35 @@ export const RegexTesterScreen: React.FC = () => {
     }
   };
 
-  /**
-   * Agrega una entrada al historial luego de un retraso si no hay duplicados
-   */
+  const handleExportToPdf = async () => {
+    try {
+      const [patternBase64, matchBase64] = await Promise.all([
+        diagramRef.current?.capture?.(),
+        matchDiagramRef.current?.capture?.(),
+      ]);
+
+      if (!patternBase64 || !matchBase64) {
+        Alert.alert('Error', 'No se pudieron capturar los diagramas.');
+        return;
+      }
+
+      const patternUri = `data:image/png;base64,${patternBase64}`;
+      const matchUri = `data:image/png;base64,${matchBase64}`;
+      const matchTexts = matches.map(([start, end]) => testText.slice(start, end));
+
+      const html = generatePdfContent(regex, testText, matchTexts, ast, matchUri, patternUri);
+      const { uri: pdfUri } = await Print.printToFileAsync({ html });
+
+      await Sharing.shareAsync(pdfUri, {
+        mimeType: 'application/pdf',
+        dialogTitle: 'Compartir reporte PDF',
+      });
+    } catch (err) {
+      console.error('Error al exportar PDF:', err);
+      Alert.alert('Error', 'No se pudo exportar el PDF.');
+    }
+  };
+
   useEffect(() => {
     if (regex.trim().length === 0 || testText.trim().length === 0) return;
 
@@ -146,14 +206,10 @@ export const RegexTesterScreen: React.FC = () => {
 
       <View style={styles.buttonRow}>
         <Button title="Ver historial" onPress={handleGoToHistory} />
-        <Button
-          title="Limpiar"
-          color="#f44336"
-          onPress={() => {
-            setRegex('');
-            setTestText('');
-          }}
-        />
+        <Button title="Limpiar" color="#f44336" onPress={() => {
+          setRegex('');
+          setTestText('');
+        }} />
       </View>
 
       {ast && <ASTViewer ast={ast} />}
@@ -161,9 +217,13 @@ export const RegexTesterScreen: React.FC = () => {
       {regex && testText && (
         <>
           <Text style={styles.diagramLabel}>Coincidencias en texto:</Text>
-          <View style={{ alignItems: 'center', marginBottom: 20 }}>
+          <ViewShot
+            ref={matchDiagramRef}
+            options={{ format: 'png', quality: 1, result: 'base64' }}
+            style={{ ...styles.diagramWrapper, alignSelf: 'center' }}
+          >
             <MatchedRailDiagram regex={regex} testText={testText} />
-          </View>
+          </ViewShot>
         </>
       )}
 
@@ -173,7 +233,7 @@ export const RegexTesterScreen: React.FC = () => {
 
           <ViewShot
             ref={diagramRef}
-            options={{ format: 'png', quality: 1 }}
+            options={{ format: 'png', quality: 1, result: 'base64' }}
             style={{ ...styles.diagramWrapper, alignSelf: 'center' }}
           >
             <RailDiagram ast={ast} matchIndices={matchIndices} />
@@ -182,13 +242,16 @@ export const RegexTesterScreen: React.FC = () => {
           <View style={styles.buttonContainer}>
             <Button title="Guardar diagrama como imagen" onPress={handleCapture} />
           </View>
+
+          <View style={styles.buttonContainer}>
+            <Button title="Exportar a PDF" onPress={handleExportToPdf} />
+          </View>
         </>
       )}
     </ScrollView>
   );
 };
 
-// Estilos
 const styles = StyleSheet.create({
   container: {
     padding: 20,
